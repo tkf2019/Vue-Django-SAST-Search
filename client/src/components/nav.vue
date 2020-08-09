@@ -82,8 +82,8 @@
         position: absolute;
         right: 120px;
         margin-right: 20px;
-        color: black;
-        margin-top: 20px;
+        color: white;
+        margin-top: 21px;
         font: {
           weight: 600;
           size: 24px;

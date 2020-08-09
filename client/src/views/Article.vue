@@ -8,7 +8,13 @@
         pagePack: 1
       }
     },
-    created() {
+    watch: {
+      $route() {
+         this.page = 1,
+         this.pagePack = 1
+      }
+    },
+    mounted() {
       this.$store.dispatch('search/getArticle', this.$route.query.keys)
     },
     render(h) {
@@ -17,7 +23,7 @@
       const articles = this.searchData.articles
       const time = this.searchData.time
       const keys = this.$route.query.keys
-
+      
       if (!!this.$route.query.index) {
         let index = this.$route.query.index - 1
         let paragraphArray = articles[index].content.split('\n')
@@ -49,9 +55,47 @@
             class: 'article-paragraph'
           }))
         }
+        articleBox.push(h('p', {
+          class: 'article-button'
+        }, [
+          h('a', {
+            domProps: {
+              innerHTML: 'Back'
+            },
+            on: {
+              click: () => {
+                this.$router.push({
+                  path: '/home/article',
+                  query: {
+                    keys
+                  }
+                })
+              }
+            }
+          }),
+          h('a', {
+            domProps: {
+              innerHTML: 'Next'
+            },
+            on: {
+              click: () => {
+                if (this.$route.query.index < length) {
+                  this.$router.push({
+                    path: '/home/article',
+                    query: {
+                      keys,
+                      index: parseInt(this.$route.query.index) + 1
+                    }
+                  })
+                }
+              }
+            }
+          })
+        ]))
       } else {
         let pageList = []
         const pageNumber = Math.ceil(length / 10)
+        const maxPagePack = Math.ceil(pageNumber / 5)
 
         function highlight(string) {
           let resultString = ''
@@ -77,7 +121,7 @@
           domProps: {
             innerHTML: `Took <strong>${time == '' ? 0 : time}</strong> to search 
               <strong>${length}</strong> relevant articles.` + 
-              `\xa0\xa0Page <strong>${pageNumber == 0 ? 0 : this.page}</strong> \/ 
+              `\xa0\xa0Page\xa0 <strong>${pageNumber == 0 ? 0 : this.page}</strong> \/ 
               <strong>${pageNumber}</strong>.`
           },
           class: 'box-title'
@@ -85,14 +129,16 @@
         for (let i = (this.page - 1) * 10; i < this.page * 10 - 1 && i < length; i++) {
           let contentList = []
           let contentPart = ''
-          let firstIndex = articles[i].content.indexOf(keys)
+          let firstIndex = articles[i].content.indexOf(keys)          
+          let titlePart = highlight(articles[i].title)
+
           if (firstIndex < 100) {
             contentPart = highlight(articles[i].content.substring(0, 100)) + '......'
           } else {
             contentPart = '......' + highlight(articles[i].content.substring(firstIndex - 50, firstIndex + 50)) + '......'
           }
-          
-          let titlePart = highlight(articles[i].title)
+          contentPart += `(<span class=\"highlight\">${articles[i].times} times</span>)`
+
           contentList.push(h('div', {
             class: 'left-content'
           }, [
@@ -112,8 +158,6 @@
               },
               on: {
                 click: () => {
-                  let totalArticle = articles[i]
-                  
                   this.$router.replace({
                     path: '/home/article',
                     name: 'Article',
@@ -136,23 +180,23 @@
             class: 'article-content'
           }, contentList))
         }
-        if (this.pagePack > 1) {
+        if (this.pagePack != 1) {
           pageList.push(h('li', {
-          class: 'page-button'
-        }, [
-          h('a', {
-            domProps: {
-              innerHTML: `...`
-            },
-            on: {
-              click: () => {
-                this.pagePack--
-              }
-            } 
-          })
-        ]))
+            class: 'page-button'
+          }, [
+            h('a', {
+              domProps: {
+                innerHTML: `...`
+              },
+              on: {
+                click: () => {
+                  this.pagePack--
+                }
+              } 
+            })
+          ]))
         }
-        for (let i = (this.pagePack - 1) * 6; i < this.pagePack * 6 - 1; i++) {
+        for (let i = (this.pagePack - 1) * 5; i < this.pagePack * 5 && i < pageNumber; i++) {
           pageList.push(h('li', {
             class: 'page-button'
           }, [
@@ -168,20 +212,22 @@
             })
           ]))
         }
-        pageList.push(h('li', {
-          class: 'page-button'
-        }, [
-          h('a', {
-            domProps: {
-              innerHTML: `...`
-            },
-            on: {
-              click: () => {
-                this.pagePack++
-              }
-            } 
-          })
-        ]))
+        if (this.pagePack < maxPagePack) {
+          pageList.push(h('li', {
+            class: 'page-button'
+          }, [
+            h('a', {
+              domProps: {
+                innerHTML: `...`
+              },
+              on: {
+                click: () => {
+                  this.pagePack++
+                }
+              } 
+            })
+          ]))
+        }
         articleBox.push(h('ul', {
           class: 'page-buttons'
         }, pageList))
@@ -200,7 +246,7 @@
 <style lang="scss">
   .article-box {
     width: 100%;
-    max-width: 800px;
+    max-width: 900px;
     padding-right: 15px;
     padding-left: 15px;
     margin-right: auto;
@@ -222,7 +268,12 @@
       max-width: 800px;
       display: flex;
       flex-wrap: wrap;
-      background-color: black;
+      background-color: rgb(27, 26, 26);
+      transition-duration: 0.3s;;
+      &:hover {
+        box-shadow: 1px 1px 10px black ;
+        transform: translateY(-5px);
+      }
       .left-content, .right-content {
         position: relative;
         width: 100%;
@@ -247,6 +298,7 @@
         min-width: 0;
         max-width: 100%;
         color: white;
+        font-family: "微软雅黑", "黑体", "宋体";
         .post-title {
           font-size: 24px;
           transition-duration: 0.3s;
@@ -285,7 +337,7 @@
 
     .article-title {
       text-align: center;
-      font-size: 2.5rem;
+      font-size: 2.0rem;
       margin-top: 0;
       margin-bottom: .5rem;
       font-weight: 500;
@@ -296,14 +348,36 @@
       text-align: center;
       margin-bottom: 20px;
       color: white;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 18px;
       span {
         margin: 0 10px;
       }
     }
     .article-paragraph {
       color: white;
+      font-family: "微软雅黑", "黑体", "宋体";
+      line-height: 25px;
       text-indent: 2em;
       text-align: start;
+    }
+    .article-button {
+      text-align: center;
+      margin-top: 50px;
+      color: white;
+      a {
+        font: {
+          size: 24px;
+          weight: 600;
+        }
+        height: 80px;
+        margin: 0 100px;
+        transition-duration: 0.3s;
+        &:hover {
+          cursor: pointer;
+          color: black;
+        }
+      }  
     }
   }
 </style>

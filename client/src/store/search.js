@@ -24,6 +24,9 @@ const actions = {
       .then(response => {
         commit(SEARCH_SUCCESS)
         state.searchData = response.data
+        state.searchData.articles.sort((a, b) => {
+          return b['times'] - a['times']
+        })
       })
       .catch(() => SEARCH_FAILURE)
   },
