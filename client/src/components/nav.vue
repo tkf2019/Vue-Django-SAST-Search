@@ -11,9 +11,22 @@
         <search-input class="nav-input"></search-input>
       </template>
       <template v-if="userExist">
-        <div id="text">
-          {{username}}
-        </div>
+        <template v-if="userAvatarNotExist">
+          <div class="navbar-avatar">
+            <a @click="changeShowState">
+              <img src="@/assets/images/icon4.png">
+            </a>
+            <transition name="fade">
+              <div v-if="showUserInfo" class="user-box">
+                <ul>
+                  <li>{{user.name}}</li>
+                  <li>{{user.createTime}}</li>
+                </ul>
+              </div>
+            </transition>
+          </div>
+        </template>
+        
         <a @click="logout" class="login-button">
             Log out
         </a>
@@ -36,11 +49,12 @@
     name: 'NavBar',
     data() {
       return {
+        showUserInfo: false,
         styles: [
-          'steelblue',
-          'lightseagreen',
-          'darkslategray',
-          'palevioletred'
+          'sky',
+          'nature',
+          'planet',
+          'twilight'
         ]     
       }
     },
@@ -52,14 +66,26 @@
       userExist() {
         return this.$store.getters['auth/isAuthenticated']
       },
-      username() {
-        return this.$store.getters['auth/userInfo'].name
+      userAvatarNotExist() {
+        return this.$store.getters['auth/userInfo'].avatar === ''
+      },
+      user() {
+        return this.$store.getters['auth/userInfo']
       }
     },
     methods: {
       logout() {
         this.$store.dispatch('auth/logout')
           .then(() => this.$router.push('/home/login'))
+      },
+      changeShowState() {
+        this.showUserInfo = !this.showUserInfo
+      }, 
+      getAvatar(event) {
+        console.log(event.target.files[0])
+        let formData = new FormData()
+        formData.append('file', event.target.files[0], 'avatar')
+       this.$store.dispatch('upload/uploadFile', formData)
       }
     }
   }
@@ -78,17 +104,7 @@
       justify-content: flex-start;
       padding: .5rem 1rem;
       box-sizing: border-box;
-      #text {
-        position: absolute;
-        right: 120px;
-        margin-right: 20px;
-        color: white;
-        margin-top: 21px;
-        font: {
-          weight: 600;
-          size: 24px;
-        }
-      }
+      
       .nav-input {
         height: 20px;
         align-items: flex-start;
@@ -111,7 +127,49 @@
       line-height: inherit;
       white-space: nowrap;
     }
-    
+    .navbar-avatar {
+      position: absolute;
+      min-width: 200px;
+      right: 20px;
+      margin-top: 5px;
+      align-items: center;
+      transition-duration: 0.3s;
+      a:hover {
+        width: 60px;
+        height: 60px;
+        cursor: pointer;
+      }
+      .fade-enter-active, .fade-leave-active {
+        transition: opacity 0.3s;
+      }
+      .fade-enter, .fade-leave-to {
+        opacity: 0;
+      }
+      .user-box {
+        border-radius: 10px;
+        margin: 0px auto;
+        padding: 10px 0;
+        display: flex;
+        flex-wrap: wrap;
+        color: white;
+        box-shadow: 1px 1px 5px black;
+        ul {
+          list-style: none;
+          margin: auto;
+          text-align: center;
+          .avatar-button {
+            transition-duration: 0.3s;
+            margin-top: 15px;
+            font-size: 20px;
+            &:hover {
+              cursor: pointer;
+              color: black;
+              transform: scale(1.1, 1.1);
+            }
+          }
+        }
+      }
+    }
     img {
       width: 60px;
       height: 60px;

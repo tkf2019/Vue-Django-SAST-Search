@@ -1,0 +1,61 @@
+.button-pack-sky {
+  button {
+    background-color: #66cccc;
+  }
+}
+.sky {
+  
+  background-image: url('assets/images/10.jpg');
+  .article-content {
+    background-color: #339999;
+  }
+  .article-total {
+    color: rgb(27, 41, 39);
+  }
+}
+
+.button-pack-nature {
+  button {
+    background-color: #339933;
+  }
+}
+.nature {
+  background-image: url('assets/images/13.jpg');
+  .article-content {
+    background-color: #336666;
+  }
+  .article-total {
+    color: rgb(94, 187, 128);
+  }
+}
+
+.button-pack-planet {
+  button {
+    background-color: #152556;
+  }
+}
+.planet {
+  background-image: url('assets/images/19.jpg');
+  .article-content {
+    background-color: #003366;
+  }
+  .article-total {
+    color: rgb(53, 116, 193);
+  }
+}
+
+.button-pack-twilight {
+  button {
+    background-color: #cc0033;
+  }
+}
+.twilight {
+  background-image: url('assets/images/12.jpg');
+  .article-content {
+    background-color: black;
+  }
+  .article-total {
+    color: white;
+  }
+}
+

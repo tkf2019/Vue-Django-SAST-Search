@@ -18,3 +18,6 @@ export const SET_TOKEN = 'SET_TOKEN'
 export const UPDATE_TOKEN = 'UPDATE_TOKEN'
 export const REMOVE_STATE = 'REMOVE_TOKEN'
 export const SET_USER = 'SET_USER'
+
+export const UPLOAD_BEGIN = 'UPLOAD_BEGIN'
+export const UPLOAD_SUCCESS = 'UPLOAD_SUCCESS'

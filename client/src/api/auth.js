@@ -12,17 +12,20 @@ export default {
     return instance.post('/logout/', {})
   },
   // REGISTER relevant functions
-  createAccount(username, password, passwordConfirmation) {
+  createAccount(username, password, passwordConfirmation, email) {
     return instance.post('/register/',{
       username,
       password,
-      passwordConfirmation
+      passwordConfirmation,
+      email
     })
   },
-  getArticle(keys) {
+  getArticle(keys, packSize, packIndex) {
     return instance.get('/search/', {
       params: {
-        keys
+        keys,
+        packSize,
+        packIndex
       }
     })
   }

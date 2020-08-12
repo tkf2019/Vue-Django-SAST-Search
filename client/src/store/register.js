@@ -15,17 +15,25 @@ const state = {
 
 const actions = {
   createAccount ({ commit }, {
-    username, password, passwordConfirmation
+    username, password, passwordConfirmation, email
   }) {
     commit(REGISTRATION_BEGIN)
     return auth.createAccount(
-      username, password, passwordConfirmation
+      username, password, passwordConfirmation, email
     )
       .then(response => {
-        console.log(response.data)
-        commit(REGISTRATION_SUCCESS)
+        let status = response.data.status
+
+        if (status === 'create') {
+          commit(REGISTRATION_SUCCESS)
+        } else if (status === 'existed') {
+          alert('Username Existed!')
+          commit(REGISTRATION_FAILURE)
+        }
       })
-      .catch(() => commit(REGISTRATION_FAILURE))
+      .catch(error => {
+        commit(REGISTRATION_FAILURE)
+      })
   },
   clearRegistrationStatus ({ commit }) {
     commit(REGISTRATION_CLEAR)

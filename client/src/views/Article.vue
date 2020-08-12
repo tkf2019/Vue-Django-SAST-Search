@@ -8,234 +8,282 @@
         pagePack: 1
       }
     },
-    watch: {
-      $route() {
-         this.page = 1,
-         this.pagePack = 1
-      }
-    },
     mounted() {
-      this.$store.dispatch('search/getArticle', this.$route.query.keys)
+      this.$store.dispatch('search/getArticle', {
+        keys: this.$route.query.keys,
+        packSize: 10,
+        packIndex: 1
+      })
+    },
+    watch: { 
+      $route(newValue, oldValue) {
+        if (newValue.query.keys !== oldValue.query.keys) {
+          this.page = 1
+          this.pagePack = 1
+        }
+      }  
     },
     render(h) {
-      let articleBox = []
-      const length = this.searchData.articles.length
-      const articles = this.searchData.articles
-      const time = this.searchData.time
-      const keys = this.$route.query.keys
-      
-      if (!!this.$route.query.index) {
-        let index = this.$route.query.index - 1
-        let paragraphArray = articles[index].content.split('\n')
-        articleBox.push(h('h1', {
-          domProps: {
-            innerHTML: `${articles[index].title}`
-          },
-          class: 'article-title'
-        }))
-        articleBox.push(h('p', {
-          class: 'article-info'
-        }, [
-          h('span', {
-            domProps: {
-              innerHTML: `${articles[index].time}` 
-            }
-          }),
-          h('span', {
-            domProps: {
-              innerHTML: `${articles[index].source}` 
-            }
-          })
-        ]))
-        for (let i = 0; i < paragraphArray.length; i++) {
-          articleBox.push(h('p', {
-            domProps: {
-              innerHTML: `${paragraphArray[i]}` 
-            },
-            class: 'article-paragraph'
-          }))
-        }
-        articleBox.push(h('p', {
-          class: 'article-button'
-        }, [
-          h('a', {
-            domProps: {
-              innerHTML: 'Back'
-            },
-            on: {
-              click: () => {
-                this.$router.push({
-                  path: '/home/article',
-                  query: {
-                    keys
-                  }
-                })
-              }
-            }
-          }),
-          h('a', {
-            domProps: {
-              innerHTML: 'Next'
-            },
-            on: {
-              click: () => {
-                if (this.$route.query.index < length) {
-                  this.$router.push({
-                    path: '/home/article',
-                    query: {
-                      keys,
-                      index: parseInt(this.$route.query.index) + 1
-                    }
-                  })
-                }
-              }
-            }
-          })
-        ]))
-      } else {
-        let pageList = []
-        const pageNumber = Math.ceil(length / 10)
-        const maxPagePack = Math.ceil(pageNumber / 5)
+      if (this.searchData.time !== '') {
 
-        function highlight(string) {
-          let resultString = ''
-          let lastIndex = 0
-          let nowIndex = string.indexOf(keys)
+        let articleBox = []
+        const length = this.searchData.number
+        const articles = this.searchData.articles
+        const time = this.searchData.time
+        const keys = this.$route.query.keys
+        
+        if (!!this.$route.query.index) {
           
-          while (true) {
-            if (nowIndex != -1) {
-              resultString += string.substring(lastIndex, nowIndex)
-                + '<span class=\"highlight\">' + keys + '<\/span>'
-            } else {
-              resultString += string.substring(lastIndex)
-              break
-            }
+          let articleContent = []
+          const index = parseInt(this.$route.query.index)
+          const paragraphArray = articles[index - 1].content.split('\n')
 
-            lastIndex = nowIndex + keys.length
-            nowIndex = string.indexOf(keys, nowIndex + 1)
-          }
-          return resultString
-        }
+          articleContent.push(h('h1', {
+            domProps: {
+              innerHTML: `${articles[index - 1].title}`
+            },
+            class: 'article-title'
+          }))
 
-        articleBox.push(h('p', {
-          domProps: {
-            innerHTML: `Took <strong>${time == '' ? 0 : time}</strong> to search 
-              <strong>${length}</strong> relevant articles.` + 
-              `\xa0\xa0Page\xa0 <strong>${pageNumber == 0 ? 0 : this.page}</strong> \/ 
-              <strong>${pageNumber}</strong>.`
-          },
-          class: 'box-title'
-        }))
-        for (let i = (this.page - 1) * 10; i < this.page * 10 - 1 && i < length; i++) {
-          let contentList = []
-          let contentPart = ''
-          let firstIndex = articles[i].content.indexOf(keys)          
-          let titlePart = highlight(articles[i].title)
-
-          if (firstIndex < 100) {
-            contentPart = highlight(articles[i].content.substring(0, 100)) + '......'
-          } else {
-            contentPart = '......' + highlight(articles[i].content.substring(firstIndex - 50, firstIndex + 50)) + '......'
-          }
-          contentPart += `(<span class=\"highlight\">${articles[i].times} times</span>)`
-
-          contentList.push(h('div', {
-            class: 'left-content'
+          articleContent.push(h('p', {
+            class: 'article-info'
           }, [
-            h('img', {
+            h('span', {
               domProps: {
-                src: require('@/assets/images/1.png')
+                innerHTML: `${articles[index - 1].time}` 
+              }
+            }),
+            h('span', {
+              domProps: {
+                innerHTML: `${articles[index - 1].source}` 
               }
             })
           ]))
-          contentList.push(h('div', {
-            class: 'right-content'
+
+          for (let i = 0; i < paragraphArray.length; i++) {
+            articleContent.push(h('p', {
+              domProps: {
+                innerHTML: `${paragraphArray[i]}` 
+              },
+              class: 'article-paragraph'
+            }))
+          }
+
+          articleContent.push(h('p', {
+            class: 'article-button'
           }, [
             h('a', {
-              class: 'post-title',
               domProps: {
-                innerHTML: `${titlePart}`
+                innerHTML: 'Back'
               },
               on: {
                 click: () => {
-                  this.$router.replace({
+                  this.$router.push({
                     path: '/home/article',
-                    name: 'Article',
                     query: {
-                      keys: keys,
-                      index: i + 1
+                      keys
                     }
                   })
                 }
               }
             }),
-            h('p', {
-              class: 'post-content',
+            h('a', {
               domProps: {
-                innerHTML: `${contentPart}`
+                innerHTML: 'Next'
+              },
+              on: {
+                click: () => {
+                  if ((this.page - 1) * 10 + index < length) {
+                    let flag = true
+                    if (index && index % 10 == 0) {
+                      this.page += 1
+                      flag = false
+                      this.$store.dispatch('search/getArticle', {
+                        keys,
+                        packSize: 10,
+                        packIndex: this.page
+                      })
+                    }
+                    this.$router.push({
+                      path: '/home/article',
+                      query: {
+                        keys,
+                        page: this.page,
+                        index: flag ? index + 1 : 1
+                      }
+                    })
+                  }
+                }
               }
             })
           ]))
+
           articleBox.push(h('div', {
-            class: 'article-content'
-          }, contentList))
-        }
-        if (this.pagePack != 1) {
-          pageList.push(h('li', {
-            class: 'page-button'
-          }, [
-            h('a', {
-              domProps: {
-                innerHTML: `...`
-              },
-              on: {
-                click: () => {
-                  this.pagePack--
+            class: 'article-total'
+          }, articleContent))
+        } else {
+
+          let pageList = []
+          const pageNumber = Math.ceil(length / 10)
+          const maxPagePack = Math.ceil(pageNumber / 5)
+
+          function highlight(string) {
+            let resultString = ''
+            let lastIndex = 0
+            let nowIndex = string.indexOf(keys)
+            
+            while (true) {
+              if (nowIndex != -1) {
+                resultString += string.substring(lastIndex, nowIndex)
+                  + '<span class=\"highlight\">' + keys + '<\/span>'
+              } else {
+                resultString += string.substring(lastIndex)
+                break
+              }
+
+              lastIndex = nowIndex + keys.length
+              nowIndex = string.indexOf(keys, nowIndex + 1)
+            }
+            return resultString
+          }
+
+          articleBox.push(h('p', {
+            domProps: {
+              innerHTML: `Took <strong>${time == '' ? 0 : time}</strong> to search 
+                <strong>${length}</strong> relevant articles.` + 
+                `\xa0\xa0Page\xa0 <strong>${pageNumber == 0 ? 0 : this.page}</strong> \/ 
+                <strong>${pageNumber}</strong>.`
+            },
+            class: 'box-title'
+          }))
+          for (let i = 0; i < 10; i++) {
+            if (10 * (this.page - 1) + i >= length) {
+              break
+            }
+            let contentList = []
+            let contentPart = ''
+            let firstIndex = articles[i].content.indexOf(keys)          
+            let titlePart = highlight(articles[i].title)
+
+            if (firstIndex < 100) {
+              contentPart = highlight(articles[i].content.substring(0, 100)) + '......'
+            } else {
+              contentPart = '......' + highlight(articles[i].content.substring(firstIndex - 50, firstIndex + 50)) + '......'
+            }
+            contentPart += `(<span class=\"highlight\">${articles[i].times} times</span>)`
+
+            contentList.push(h('div', {
+              class: 'left-content'
+            }, [
+              h('img', {
+                domProps: {
+                  src: require('@/assets/images/1.png')
                 }
-              } 
-            })
-          ]))
-        }
-        for (let i = (this.pagePack - 1) * 5; i < this.pagePack * 5 && i < pageNumber; i++) {
-          pageList.push(h('li', {
-            class: 'page-button'
-          }, [
-            h('a', {
-              domProps: {
-                innerHTML: `${i + 1}`
-              },
-              on: {
-                click: () => {
-                  this.page = i + 1
+              })
+            ]))
+            contentList.push(h('div', {
+              class: 'right-content'
+            }, [
+              h('a', {
+                class: 'post-title',
+                domProps: {
+                  innerHTML: `${titlePart}`
+                },
+                on: {
+                  click: () => {
+                    this.$router.replace({
+                      path: '/home/article',
+                      name: 'Article',
+                      query: {
+                        keys: keys,
+                        page: this.page,
+                        index: i + 1
+                      }
+                    })
+                  }
                 }
-              } 
-            })
-          ]))
-        }
-        if (this.pagePack < maxPagePack) {
-          pageList.push(h('li', {
-            class: 'page-button'
-          }, [
-            h('a', {
-              domProps: {
-                innerHTML: `...`
-              },
-              on: {
-                click: () => {
-                  this.pagePack++
+              }),
+              h('p', {
+                class: 'post-content',
+                domProps: {
+                  innerHTML: `${contentPart}`
                 }
-              } 
-            })
-          ]))
+              })
+            ]))
+            articleBox.push(h('div', {
+              class: 'article-content'
+            }, contentList))
+          }
+          if (this.pagePack != 1) {
+            pageList.push(h('li', {
+              class: 'page-button'
+            }, [
+              h('a', {
+                domProps: {
+                  innerHTML: `...`
+                },
+                on: {
+                  click: () => {
+                    this.pagePack--
+                  }
+                } 
+              })
+            ]))
+          }
+          for (let i = (this.pagePack - 1) * 5; i < this.pagePack * 5 && i < pageNumber; i++) {
+            pageList.push(h('li', {
+              class: 'page-button'
+            }, [
+              h('a', {
+                domProps: {
+                  innerHTML: `${i + 1}`
+                },
+                on: {
+                  click: () => {
+                    this.$store.dispatch('search/getArticle', { 
+                      keys,
+                      packSize: 10,
+                      packIndex: i + 1
+                    })
+                    this.page = i + 1
+                  }
+                } 
+              })
+            ]))
+          }
+          if (this.pagePack < maxPagePack) {
+            pageList.push(h('li', {
+              class: 'page-button'
+            }, [
+              h('a', {
+                domProps: {
+                  innerHTML: `...`
+                },
+                on: {
+                  click: () => {
+                    this.pagePack++
+                  }
+                } 
+              })
+            ]))
+          }
+          articleBox.push(h('ul', {
+            class: 'page-buttons'
+          }, pageList))
         }
-        articleBox.push(h('ul', {
-          class: 'page-buttons'
-        }, pageList))
+
+        return h('div', {
+          class: 'article-box'
+        }, articleBox)
+      } else {
+        return h('div', {
+          class: 'loading',
+          domProps: {
+            innerHTML: `Loading...`
+          }
+        })
       }
 
-      return h('div', {
-        class: 'article-box'
-      }, articleBox)
     },
     computed: mapState('search', [
       'searchData'
@@ -265,13 +313,12 @@
       border-radius: 10px;
       margin: 10px auto;
       padding: 10px 0;
-      max-width: 800px;
+      max-width: 900px;
       display: flex;
       flex-wrap: wrap;
-      background-color: rgb(27, 26, 26);
       transition-duration: 0.3s;;
       &:hover {
-        box-shadow: 1px 1px 10px black ;
+        box-shadow: 1px 1px 10px black;
         transform: translateY(-5px);
       }
       .left-content, .right-content {
@@ -301,9 +348,8 @@
         font-family: "微软雅黑", "黑体", "宋体";
         .post-title {
           font-size: 24px;
-          transition-duration: 0.3s;
           &:hover {
-            border-bottom: 1px solid white;
+            text-decoration: underline;
             cursor: pointer;
           }
         }
@@ -342,12 +388,10 @@
       margin-bottom: .5rem;
       font-weight: 500;
       line-height: 1.2;
-      color: white;
     }
     .article-info {
       text-align: center;
       margin-bottom: 20px;
-      color: white;
       font-family: 'Times New Roman', Times, serif;
       font-size: 18px;
       span {
@@ -355,7 +399,6 @@
       }
     }
     .article-paragraph {
-      color: white;
       font-family: "微软雅黑", "黑体", "宋体";
       line-height: 25px;
       text-indent: 2em;
@@ -364,7 +407,6 @@
     .article-button {
       text-align: center;
       margin-top: 50px;
-      color: white;
       a {
         font: {
           size: 24px;

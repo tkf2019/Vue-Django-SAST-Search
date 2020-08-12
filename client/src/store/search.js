@@ -12,21 +12,19 @@ const state = {
   searchError: false,
   searchLoading: false,
   searchData: {
+    time: '',
+    number: '',
     articles: [],
-    time: ''
   }
 }
 
 const actions = {
-  getArticle ({ commit }, keys) {
+  getArticle ({ commit }, {keys, packSize, packIndex}) {
     commit(SEARCH_BEGIN)
-    return auth.getArticle(keys)
+    return auth.getArticle(keys, packSize, packIndex)
       .then(response => {
         commit(SEARCH_SUCCESS)
         state.searchData = response.data
-        state.searchData.articles.sort((a, b) => {
-          return b['times'] - a['times']
-        })
       })
       .catch(() => SEARCH_FAILURE)
   },

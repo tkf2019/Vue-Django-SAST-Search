@@ -13,13 +13,17 @@ import {
 
 const TOKEN_STORAGE_KEY = 'TOKEN_STORAGE_KEY'
 const USER_NAME = 'USER_NAME'
+const USER_CREATE_TIME = 'USER_CREATE_TIME'
+const USER_AVATAR = 'USER_AVATAR'
 
 const initialState = {
   authenticating: false,
   error: false,
   token: null,
   user: {
-    name: ''
+    name: '',
+    createTime: '',
+    avatar: ''
   }
 }
 
@@ -33,12 +37,18 @@ const actions = {
     commit(LOGIN_BEGIN)
     return auth.login(username, password)
       .then(response => {
-        commit(SET_TOKEN, response.data.token)
-        commit(SET_USER, response.data.user)
+        let status = response.data.status
+
+        if (status === 'success') {
+          commit(SET_TOKEN, response.data.token)
+          commit(SET_USER, response.data.user)
+        } else if (status === 'failed') {
+          alert('Cannot Find User!')
+          commit(LOGIN_FAILURE)
+        }
       })
       .then(() => commit(LOGIN_SUCCESS))
       .catch(error => {
-        console.log(error)
         commit(LOGIN_FAILURE)
       })
   },
@@ -54,8 +64,10 @@ const actions = {
     }
 
     const name = sessionStorage.getItem(USER_NAME)
+    const createTime = sessionStorage.getItem(USER_CREATE_TIME)
+    const avatar = sessionStorage.getItem(USER_AVATAR)
     if (!!name) {
-      commit(SET_USER, {name})
+      commit(SET_USER, { name, createTime, avatar })
     }
   },
   update ({ commit }) {
@@ -96,11 +108,21 @@ const mutations = {
 
     sessionStorage.removeItem(USER_NAME)
     state.user.name = ''
+    sessionStorage.removeItem(USER_CREATE_TIME)
+    state.user.createTime = ''
+    sessionStorage.removeItem(USER_AVATAR)
+    state.user.avatar = ''
   },
   [SET_USER] (state, user) {
-    const name = user.name
-    state.user = { name }
-    sessionStorage.setItem(USER_NAME, name)
+    state.user = {
+      name: user.name,
+      createTime: user.createTime,
+      avatar: user.avatar
+    }
+
+    sessionStorage.setItem(USER_NAME, user.name)
+    sessionStorage.setItem(USER_CREATE_TIME, user.createTime)
+    sessionStorage.setItem(USER_AVATAR, user.avatar)
   }
 }
 

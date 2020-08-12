@@ -20,7 +20,7 @@ const strategies = {
       this.error : void 0
   },
   isEmail() {
-    return !/^([a-zA-Z0-9])(\w|\-)+@[a-zA-Z0-9]+\.([a-zA-Z]{2,4})$/.test(this.value) ?
+    return !/^([a-zA-Z0-9])(\w|\-)+@([a-zA-Z0-9]+\.)+([a-zA-Z]{2,4})$/.test(this.value) && !!this.value ?
       this.error : void 0
   }
 }

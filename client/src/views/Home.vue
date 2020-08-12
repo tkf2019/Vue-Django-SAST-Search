@@ -11,7 +11,7 @@
     </div>
     <footer>
       <p>
-        @SAST <a href="">TKF</a> Vue-Django-Search-Project
+        @SAST <a href="https://github.com/tkf2019/Vue-Django-SAST-Search" target="_blank">TKF</a> Vue-Django-Search-Project
       </p>
     </footer>
   </div>
@@ -64,6 +64,7 @@
       bottom: 0;
       text-align: center;
       height: 80px;
+      color: white;
       p {
         font-size: 16px;
         padding: 20px 0;

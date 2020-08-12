@@ -54,12 +54,14 @@ export default {
       errorForm: {
         'Username': [],
         'Password': [],
-        'Password Confirm': []
+        'Password Confirm': [],
+        'Email': []
       },
       registerForm: {
         username: '',
         password: '',
         passwordConfirm: '',
+        email: ''
       },
       validator: new Validator()
     }
@@ -102,6 +104,15 @@ export default {
         }, {
           strategy: str,
           errorMessage: 'Entered Passwords Differ!'
+        }])
+      } else if (type === "Email") {
+        this.registerForm.email = value
+        this.validator.add(user.email, event, [{
+          strategy: 'isNoEmpty',
+          errorMessage: 'Email Cannot be Empty!'
+        }, {
+          strategy: 'isEmail',
+          errorMessage: 'Please Enter a Valid Email!'
         }])
       }
       this.validator.check(event, () => {}, err => {

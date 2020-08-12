@@ -16,13 +16,18 @@
     },
     methods: {
       submitKeys() {
-        this.$store.dispatch('search/getArticle', this.keys)
-        this.$router.replace({
-          path: '/home/article',
-          name: 'Article',
-          query: {
-            keys: this.keys
-          }
+        this.$store.dispatch('search/getArticle', { 
+          keys: this.keys,
+          packSize: 10,
+          packIndex: 1
+        }).then(() => {
+          this.$router.replace({
+            path: '/home/article',
+            name: 'Article',
+            query: {
+              keys: this.keys
+            }
+          })
         })
       }
     }

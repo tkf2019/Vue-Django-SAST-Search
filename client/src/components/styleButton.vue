@@ -9,23 +9,15 @@
     },
     render(h) {
       return h('div',{
-        class: 'button-pack'
+        class: 'button-pack-' + this.colorStyle
       }, [
         h('button', {
-          style: {
-            backgroundColor: this.colorStyle
-          },
           class: {
             'color-button': true
           },
           on: {
             click: () => {
-              let style = document.createElement('style')
-              style.type = 'text/css'
-              style.innerHTML = `body {background-color: `+ this.colorStyle
-              if (!style.parentNode) {
-                document.head.appendChild(style)
-              }
+              document.getElementsByTagName('body')[0].className = this.colorStyle
             } 
           }
         })

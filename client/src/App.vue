@@ -5,10 +5,15 @@
 </template>
 <script>
   export default {
-    name: 'App'
+    name: 'App',
+    created() {
+      document.getElementsByTagName('body')[0].className = 'twilight'
+    }
   }
 </script>
 <style lang="scss">
+@import './assets/css/styles.scss';
+
 * {
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -24,7 +29,13 @@
     text-decoration: none;
   }
   body {
-    background-color: steelblue;
+    transition-duration: 0.3s;
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    filter: brightness(0.9);
+    -moz-filter: brightness(0.9);
+    -webkit-filter: brightness(0.9);
   }
   .loading {
     color: white;
